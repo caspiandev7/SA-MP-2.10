@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build SAMP Client
 
 on:
   workflow_dispatch:
@@ -15,38 +15,19 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '11'
+          # Əksər yeni Android proyektləri Java 17 tələb edir. 
+          # Əgər xəta versə, bunu '11' edərsən.
+          java-version: '17' 
 
-      # Əgər doğrudan da React Native/Yarn istifadə edirsənsə bu qalsın, 
-      # amma SAMP launcherlər üçün adətən lazım olmur. Lazımdırsa aktiv edərsən.
-      # - name: Install Dependencies
-      #   run: yarn install
-
-      - name: Avtomatik Tap və Build Et (KÖKDƏN HƏLL)
+      - name: Build APK
         run: |
-          echo "🔍 Proyekt daxilində gradlew faylı axtarılır..."
-          
-          # Bütün qovluqlarda 'gradlew' faylını axtarıb tapırıq
-          GRADLE_PATH=$(find . -name "gradlew" | head -n 1)
-          
-          if [ -z "$GRADLE_PATH" ]; then
-            echo "❌ XƏTA: 'gradlew' faylı heç bir qovluqda tapılmadı! Repository-ni tam yüklədiyinə əmin ol."
-            exit 1
-          fi
-          
-          # Tapdığımız faylın yerləşdiyi qovluğu müəyyən edirik
-          GRADLE_DIR=$(dirname "$GRADLE_PATH")
-          echo "✅ Android proyekti bu qovluqda tapıldı: $GRADLE_DIR"
-          
-          # Həmin qovluğa daxil oluruq və build edirik
-          cd "$GRADLE_DIR"
+          # Qovluğa girməyə ehtiyac yoxdur, çünki gradlew ana qovluqdadır
           chmod +x ./gradlew
           ./gradlew assembleDebug
 
-      - name: APK-nı Yüklə (Upload)
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SAMP-Launcher-APK
-          # APK harda yaranırsa yaransın, bu kod onu tapıb sənə verəcək!
-          path: "**/*.apk" 
- code 1.
+          name: SAMP-Client-APK
+          # APK birbaşa app qovluğunun içindən götürüləcək
+          path: app/build/outputs/apk/**/*.apk
